@@ -160,7 +160,7 @@ app.listen(process.env.PORT || 3000);
 ### Required Environment Variables
 ```
 SUPABASE_URL
-SUPABASE_SERVICE_KEY
+SUPABASE_SERVICE_ROLE_KEY
 ADMIN_TOKEN
 OPENAI_API_KEY
 RESEND_API_KEY
@@ -185,10 +185,71 @@ GOOGLE_PRIVATE_KEY
 
 ## 6. Supabase Patterns
 
-### Client Init
-```javascript
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
+### Multi-Project Schema Strategy
+
+We use **2 Supabase projects** (free tier limit):
+
+| Project | Purpose |
+|---------|---------|
+| **MappaTravels** | Production project for MappaTravels only |
+| **ExecutionAI Lab** (formerly Yeti) | Shared sandbox — one schema per app/experiment |
+
+Each app gets its own Postgres schema inside the Lab project:
+
+| Schema | App |
+|--------|-----|
+| `yeti` | Yeti project |
+| `leasing` | Omar Leasing CRM |
+| `<new_project>` | Any new experiment or prototype |
+
+This avoids burning a new Supabase project for every prototype.
+
+---
+
+### New Schema Setup Checklist
+
+For every new schema added to the Lab project:
+
+**1. Create schema + tables**
+```sql
+CREATE SCHEMA IF NOT EXISTS my_schema;
+
+CREATE TABLE my_schema.my_table (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  -- columns...
+  created_at timestamptz DEFAULT now()
+);
 ```
+
+**2. Grant permissions**
+```sql
+GRANT USAGE ON SCHEMA my_schema TO anon, authenticated, service_role;
+GRANT ALL ON ALL TABLES IN SCHEMA my_schema TO anon, authenticated, service_role;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA my_schema TO anon, authenticated, service_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA my_schema GRANT ALL ON TABLES TO anon, authenticated, service_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA my_schema GRANT ALL ON SEQUENCES TO anon, authenticated, service_role;
+```
+
+**3. Expose the schema in Supabase dashboard**
+
+Settings → API → **Exposed schemas** → add `my_schema` → Save.
+
+---
+
+### Client Init (with schema targeting)
+```javascript
+// Each app targets its own schema
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY,
+  { db: { schema: 'my_schema' } }
+);
+```
+
+> **Note:** The env var is `SUPABASE_SERVICE_ROLE_KEY` (not `SUPABASE_SERVICE_KEY`).
+> All schemas share the same URL and key — the schema option is the only difference per app.
+
+---
 
 ### Core Table Pattern
 ```sql
@@ -427,7 +488,8 @@ const browser = await puppeteer.launch({
 
 - [ ] Copy `serve.mjs` and `screenshot.mjs` to new project root
 - [ ] Create `CLAUDE.md` with: tech stack, brand colors, fonts, frontend-design skill rule
-- [ ] Set up Supabase project → create `clients` + main entity table with `status` column
+- [ ] Add new schema to Lab Supabase project → run CREATE SCHEMA + GRANT permissions + expose in dashboard
+- [ ] Create tables prefixed with `schema_name.table_name`
 - [ ] Bootstrap `api.mjs` with: Express, Supabase client, `requireAdmin` middleware, CORS
 - [ ] Create `admin/index.html` SPA with: auth check, token in `localStorage`, `apiCall()` helper
 - [ ] Add all required env vars to Render dashboard
