@@ -1,6 +1,10 @@
 import express from 'express';
 import { createClient } from '@supabase/supabase-js';
 import cors from 'cors';
+import multer from 'multer';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const pdfParse = require('pdf-parse');
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
@@ -27,6 +31,31 @@ const requireAdmin = (req, res, next) => {
 };
 
 // ── Status transitions ────────────────────────────────────────────────────────
+
+const upload = multer({ storage: multer.memoryStorage() });
+
+// ── OpenAI helper ─────────────────────────────────────────────────────────────
+
+async function callOpenAI(systemPrompt, userContent) {
+  const res = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o-mini',
+      response_format: { type: 'json_object' },
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user',   content: userContent },
+      ],
+    }),
+  });
+  const data = await res.json();
+  if (data.error) throw new Error(data.error.message);
+  return JSON.parse(data.choices[0].message.content);
+}
 
 const VALID_TRANSITIONS = {
   prospecto:            ['cotizacion_enviada', 'cancelado'],
@@ -280,6 +309,61 @@ app.delete('/api/admin/deals/:id', requireAdmin, async (req, res) => {
     .eq('id', req.params.id);
   if (error) return res.status(500).json({ error: error.message });
   res.status(204).end();
+});
+
+// ── AI: Parse WhatsApp conversation ───────────────────────────────────────────
+
+app.post('/api/admin/parse-whatsapp', requireAdmin, async (req, res) => {
+  const { conversation } = req.body;
+  if (!conversation || !conversation.trim()) {
+    return res.status(400).json({ error: 'Se requiere el texto de la conversación' });
+  }
+  try {
+    const result = await callOpenAI(
+      `Eres un asistente CRM para una empresa de arrendamiento de autos en México.
+Extrae los datos del cliente de esta conversación de WhatsApp y responde ÚNICAMENTE con un JSON válido con estas claves:
+- full_name: string (nombre completo, requerido)
+- phone: string o null (número de teléfono, solo dígitos y espacios)
+- email: string o null
+- company: string o null (empresa u organización)
+- type: "PFAE" | "PM" | null (persona física con actividad empresarial o persona moral)
+- notes: string o null (resumen breve de lo que busca el cliente)
+Si no encuentras un dato, usa null. No inventes información.`,
+      conversation.trim()
+    );
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── AI: Parse PDF contract ─────────────────────────────────────────────────────
+
+app.post('/api/admin/parse-contract', requireAdmin, upload.single('file'), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'Se requiere un archivo PDF' });
+  const { client_id } = req.body;
+  if (!client_id) return res.status(400).json({ error: 'client_id es requerido' });
+
+  try {
+    const pdfResult = await pdfParse(req.file.buffer);
+    const text = pdfResult.text.slice(0, 12000); // cap to avoid token limits
+
+    const result = await callOpenAI(
+      `Eres un asistente CRM para una empresa de arrendamiento de autos en México.
+Extrae los datos del contrato de arrendamiento del siguiente texto y responde ÚNICAMENTE con un JSON válido con estas claves:
+- vehicle: objeto con: brand (marca), model (modelo), year (número o null), color (string o null), value (valor del vehículo en MXN como número o null)
+- monthly_payment: número en MXN o null (renta mensual / pago mensual)
+- contract_start: string en formato YYYY-MM-DD o null (fecha de inicio)
+- contract_end: string en formato YYYY-MM-DD o null (fecha de vencimiento/término)
+- notes: string o null (observaciones relevantes del contrato)
+Si no encuentras un dato, usa null. No inventes información.`,
+      text
+    );
+
+    res.json({ ...result, client_id });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // ── Start ─────────────────────────────────────────────────────────────────────

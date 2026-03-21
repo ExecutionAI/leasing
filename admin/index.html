@@ -1245,10 +1245,16 @@ async function loadClients() {
 
 async function renderClientes() {
   document.getElementById('header-action').innerHTML =
-    `<button class="btn-add" onclick="showClientForm()">
-      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 1v10M1 6h10"/></svg>
-      Nuevo Cliente
-    </button>`;
+    `<div style="display:flex;gap:8px">
+      <button class="btn-add" style="background:none;border:1px solid var(--gold-border);color:var(--gold)" onclick="showWhatsAppImport()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="opacity:.85"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/></svg>
+        Importar WhatsApp
+      </button>
+      <button class="btn-add" onclick="showClientForm()">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 1v10M1 6h10"/></svg>
+        Nuevo Cliente
+      </button>
+    </div>`;
   loadingTable(5);
   try {
     await loadClients();
@@ -1281,6 +1287,9 @@ function renderClientesContent() {
           <td>
             <div class="actions-cell">
               ${wa ? `<a href="${wa}" target="_blank" rel="noopener"><button class="btn-action whatsapp" title="WhatsApp">${waIconSvg}</button></a>` : ''}
+              <button class="btn-action" data-id="${esc(c.id)}" data-name="${esc(c.full_name)}" onclick="showContractUpload(this.dataset.id, this.dataset.name)" title="Subir contrato PDF" style="color:var(--gold);opacity:.75">
+                <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 1H3a1 1 0 00-1 1v12a1 1 0 001 1h10a1 1 0 001-1V6L9 1z"/><path d="M9 1v5h5"/><path d="M8 9v4M6 11l2-2 2 2"/></svg>
+              </button>
               <button class="btn-action" data-id="${esc(c.id)}" onclick="editClient(this.dataset.id)" title="Editar">
                 <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11.5 2.5l2 2L5 13H3v-2L11.5 2.5z"/><path d="M9.5 4.5l2 2"/></svg>
               </button>
@@ -1550,6 +1559,245 @@ async function saveVehicle() {
     closeDrawer();
     await renderVehiculos();
   } catch(e) { showToast(e.message, 'error'); }
+}
+
+// ══════════════════════════ WHATSAPP IMPORT ═══════════════════════════════════
+
+function showWhatsAppImport() {
+  openDrawer(
+    'Importar desde WhatsApp',
+    `<div class="form-group">
+      <label class="field-label">Pega la conversación de WhatsApp</label>
+      <textarea id="wa-text" class="form-textarea" style="min-height:180px" placeholder="[12/03/25, 10:22] Omar: Hola, buenos días&#10;[12/03/25, 10:23] Cliente: Hola, me interesa un arrendamiento..."></textarea>
+      <div style="font-size:11px;color:var(--text-3);margin-top:6px">La IA extraerá nombre, teléfono, empresa y más del chat.</div>
+    </div>
+    <div id="wa-parsed-form" style="display:none"></div>`,
+    `<button class="btn-secondary" onclick="closeDrawer()">Cancelar</button>
+     <button class="btn-submit" id="wa-analyze-btn" onclick="analyzeWhatsApp()">Analizar con IA</button>`
+  );
+}
+
+async function analyzeWhatsApp() {
+  const text = document.getElementById('wa-text').value.trim();
+  if (!text) { showToast('Pega una conversación primero', 'error'); return; }
+
+  const btn = document.getElementById('wa-analyze-btn');
+  btn.disabled = true;
+  btn.textContent = 'Analizando...';
+
+  try {
+    const parsed = await apiCall('/api/admin/parse-whatsapp', {
+      method: 'POST',
+      body: JSON.stringify({ conversation: text }),
+    });
+
+    // Hide textarea, show pre-filled form
+    document.getElementById('wa-text').closest('.form-group').style.display = 'none';
+    document.getElementById('wa-parsed-form').style.display = 'block';
+    document.getElementById('wa-parsed-form').innerHTML = `
+      <div style="font-size:11px;color:var(--gold);letter-spacing:.06em;text-transform:uppercase;margin-bottom:14px">Datos extraídos — revisa y confirma</div>
+      <div class="form-group">
+        <label class="field-label">Nombre completo *</label>
+        <input id="cf-name" class="field-input" type="text" value="${esc(parsed.full_name || '')}">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="field-label">Tipo</label>
+          <select id="cf-type" class="form-select">
+            <option value="">— Seleccionar —</option>
+            <option value="PFAE" ${parsed.type === 'PFAE' ? 'selected' : ''}>PFAE</option>
+            <option value="PM" ${parsed.type === 'PM' ? 'selected' : ''}>PM</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="field-label">Origen</label>
+          <select id="cf-source" class="form-select">
+            <option value="whatsapp" selected>WhatsApp</option>
+            <option value="referral">Referido</option>
+            <option value="landing">Landing</option>
+            <option value="other">Otro</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="field-label">Empresa</label>
+        <input id="cf-company" class="field-input" type="text" value="${esc(parsed.company || '')}">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="field-label">Teléfono</label>
+          <input id="cf-phone" class="field-input" type="tel" value="${esc(parsed.phone || '')}">
+        </div>
+        <div class="form-group">
+          <label class="field-label">Email</label>
+          <input id="cf-email" class="field-input" type="email" value="${esc(parsed.email || '')}">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="field-label">Notas</label>
+        <textarea id="cf-notes" class="form-textarea">${esc(parsed.notes || '')}</textarea>
+      </div>`;
+
+    document.getElementById('drawer-footer').innerHTML =
+      `<button class="btn-secondary" onclick="closeDrawer()">Cancelar</button>
+       <button class="btn-submit" onclick="saveClient()">Crear Cliente</button>`;
+
+    state.editingId = null;
+  } catch(e) {
+    showToast(e.message, 'error');
+    btn.disabled = false;
+    btn.textContent = 'Analizar con IA';
+  }
+}
+
+// ════════════════════════════════ PDF CONTRACT ════════════════════════════════
+
+function showContractUpload(clientId, clientName) {
+  openDrawer(
+    `Subir Contrato — ${clientName}`,
+    `<div class="form-group">
+      <label class="field-label">Archivo PDF del contrato</label>
+      <input type="file" id="pdf-file" accept=".pdf" class="field-input" style="padding:10px"
+        onchange="handleContractFile('${esc(clientId)}', '${esc(clientName)}')">
+      <div style="font-size:11px;color:var(--text-3);margin-top:6px">La IA extraerá vehículo, renta mensual y fechas del contrato.</div>
+    </div>
+    <div id="pdf-parsed-form" style="display:none"></div>`,
+    `<button class="btn-secondary" onclick="closeDrawer()">Cancelar</button>
+     <button class="btn-submit" id="pdf-save-btn" style="display:none" onclick="saveContractDeal()">Crear Deal</button>`
+  );
+}
+
+async function handleContractFile(clientId, clientName) {
+  const file = document.getElementById('pdf-file').files[0];
+  if (!file) return;
+
+  const fileInput = document.getElementById('pdf-file');
+  fileInput.disabled = true;
+  fileInput.nextElementSibling.textContent = 'Analizando contrato con IA...';
+
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('client_id', clientId);
+
+    const res = await fetch('/api/admin/parse-contract', {
+      method: 'POST',
+      headers: { 'x-admin-token': getToken() },
+      body: formData,
+    });
+    if (res.status === 401) { doLogout(); return; }
+    const parsed = await res.json();
+    if (!res.ok) throw new Error(parsed.error || 'Error del servidor');
+
+    const v = parsed.vehicle || {};
+    const vehicleOpts = state.vehicles.map(vx =>
+      `<option value="${esc(vx.id)}">${esc(vx.brand)} ${esc(vx.model)}${vx.year ? ` ${vx.year}` : ''}</option>`
+    ).join('');
+
+    document.getElementById('pdf-parsed-form').style.display = 'block';
+    document.getElementById('pdf-parsed-form').innerHTML = `
+      <div style="font-size:11px;color:var(--gold);letter-spacing:.06em;text-transform:uppercase;margin-bottom:14px">Datos extraídos — revisa y confirma</div>
+      <input type="hidden" id="pdf-client-id" value="${esc(clientId)}">
+      <div style="font-size:12px;color:var(--text-2);margin-bottom:12px">Cliente: <strong style="color:var(--text-1)">${esc(clientName)}</strong></div>
+      <div style="font-size:11px;color:var(--text-3);letter-spacing:.05em;text-transform:uppercase;margin-bottom:10px">Vehículo</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="field-label">Marca</label>
+          <input id="pdf-brand" class="field-input" type="text" value="${esc(v.brand || '')}">
+        </div>
+        <div class="form-group">
+          <label class="field-label">Modelo</label>
+          <input id="pdf-model" class="field-input" type="text" value="${esc(v.model || '')}">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="field-label">Año</label>
+          <input id="pdf-year" class="field-input" type="number" value="${v.year || ''}">
+        </div>
+        <div class="form-group">
+          <label class="field-label">Color</label>
+          <input id="pdf-color" class="field-input" type="text" value="${esc(v.color || '')}">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="field-label">Valor del vehículo (MXN)</label>
+        <input id="pdf-value" class="field-input" type="number" value="${v.value || ''}">
+      </div>
+      <div style="font-size:11px;color:var(--text-3);letter-spacing:.05em;text-transform:uppercase;margin:16px 0 10px">Contrato</div>
+      <div class="form-group">
+        <label class="field-label">Renta mensual (MXN)</label>
+        <input id="pdf-monthly" class="field-input" type="number" value="${parsed.monthly_payment || ''}">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="field-label">Inicio contrato</label>
+          <input id="pdf-start" class="field-input" type="date" value="${parsed.contract_start || ''}">
+        </div>
+        <div class="form-group">
+          <label class="field-label">Fin contrato</label>
+          <input id="pdf-end" class="field-input" type="date" value="${parsed.contract_end || ''}">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="field-label">Notas</label>
+        <textarea id="pdf-notes" class="form-textarea">${esc(parsed.notes || '')}</textarea>
+      </div>`;
+
+    document.getElementById('pdf-save-btn').style.display = '';
+  } catch(e) {
+    showToast(e.message, 'error');
+    fileInput.disabled = false;
+    fileInput.nextElementSibling.textContent = 'La IA extraerá vehículo, renta mensual y fechas del contrato.';
+  }
+}
+
+async function saveContractDeal() {
+  const clientId = document.getElementById('pdf-client-id').value;
+  const brand    = document.getElementById('pdf-brand').value.trim();
+  const model    = document.getElementById('pdf-model').value.trim();
+
+  if (!brand || !model) { showToast('Marca y modelo del vehículo son requeridos', 'error'); return; }
+
+  const btn = document.getElementById('pdf-save-btn');
+  btn.disabled = true;
+  btn.textContent = 'Guardando...';
+
+  try {
+    // 1. Create vehicle
+    const vehicle = await apiCall('/api/admin/vehicles', {
+      method: 'POST',
+      body: JSON.stringify({
+        brand,
+        model,
+        year:  parseInt(document.getElementById('pdf-year').value) || null,
+        color: document.getElementById('pdf-color').value.trim() || null,
+        value: parseFloat(document.getElementById('pdf-value').value) || null,
+      }),
+    });
+
+    // 2. Create deal linked to vehicle + client
+    await apiCall('/api/admin/deals', {
+      method: 'POST',
+      body: JSON.stringify({
+        client_id:       clientId,
+        vehicle_id:      vehicle.id,
+        status:          'contrato_firmado',
+        monthly_payment: parseFloat(document.getElementById('pdf-monthly').value) || null,
+        contract_start:  document.getElementById('pdf-start').value || null,
+        contract_end:    document.getElementById('pdf-end').value || null,
+        notes:           document.getElementById('pdf-notes').value.trim() || null,
+      }),
+    });
+
+    showToast('Deal creado desde contrato');
+    closeDrawer();
+    await loadVehicles();
+  } catch(e) {
+    showToast(e.message, 'error');
+    btn.disabled = false;
+    btn.textContent = 'Crear Deal';
+  }
 }
 
 // ════════════════════════════════════ INIT ════════════════════════════════════
