@@ -1,0 +1,1578 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Omar Leasing — CRM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garant:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:          #080809;
+      --surface-1:   #0f0f10;
+      --surface-2:   #161618;
+      --surface-3:   #1e1e21;
+      --gold:        #C8A96E;
+      --gold-dim:    rgba(200,169,110,0.12);
+      --gold-border: rgba(200,169,110,0.22);
+      --text-1:      #e4ddd0;
+      --text-2:      #9a9288;
+      --text-3:      #5a5450;
+      --border:      rgba(255,255,255,0.06);
+      --radius:      8px;
+      --sidebar-w:   220px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text-1);
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Login ─────────────────────────────────────────────── */
+    #login-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg);
+      background-image: radial-gradient(ellipse 70% 50% at 50% 0%, rgba(200,169,110,0.07) 0%, transparent 70%);
+    }
+    .login-card {
+      width: 100%;
+      max-width: 360px;
+      padding: 48px 40px;
+      background: var(--surface-1);
+      border: 1px solid var(--gold-border);
+      border-radius: 12px;
+      box-shadow: 0 0 60px rgba(200,169,110,0.04), 0 24px 48px rgba(0,0,0,0.4);
+    }
+    .login-logo {
+      font-family: 'Cormorant Garant', serif;
+      font-size: 28px;
+      font-weight: 300;
+      letter-spacing: 0.04em;
+      color: var(--gold);
+      margin-bottom: 4px;
+    }
+    .login-sub {
+      font-size: 11px;
+      color: var(--text-3);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 36px;
+    }
+    .field-label {
+      display: block;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-bottom: 8px;
+    }
+    .field-input {
+      width: 100%;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text-1);
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      padding: 12px 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .field-input:focus { border-color: var(--gold-border); }
+    .field-input::placeholder { color: var(--text-3); }
+    .btn-primary {
+      width: 100%;
+      margin-top: 24px;
+      padding: 13px;
+      background: var(--gold);
+      color: #080809;
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+    .btn-primary:hover { opacity: 0.88; }
+    .btn-primary:active { transform: scale(0.98); }
+    .login-error {
+      margin-top: 12px;
+      font-size: 12px;
+      color: #c26b6b;
+      text-align: center;
+      min-height: 18px;
+    }
+
+    /* ── App Shell ─────────────────────────────────────────── */
+    #app { display: none; min-height: 100vh; }
+    #app.visible { display: flex; }
+
+    /* Sidebar */
+    .sidebar {
+      width: var(--sidebar-w);
+      min-height: 100vh;
+      background: var(--surface-1);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      left: 0; top: 0; bottom: 0;
+      z-index: 100;
+    }
+    .sidebar-logo {
+      padding: 28px 24px 22px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-logo-name {
+      font-family: 'Cormorant Garant', serif;
+      font-size: 20px;
+      font-weight: 400;
+      color: var(--gold);
+      letter-spacing: 0.02em;
+    }
+    .sidebar-logo-sub {
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-top: 2px;
+    }
+    .sidebar-nav {
+      flex: 1;
+      padding: 16px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 6px;
+      color: var(--text-2);
+      font-size: 13px;
+      font-weight: 400;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      border: none;
+      background: none;
+      text-align: left;
+      width: 100%;
+      letter-spacing: 0.01em;
+      font-family: 'Outfit', sans-serif;
+    }
+    .nav-item:hover { background: var(--surface-2); color: var(--text-1); }
+    .nav-item.active { background: var(--gold-dim); color: var(--gold); }
+    .nav-icon { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.5; transition: opacity 0.15s; }
+    .nav-item:hover .nav-icon, .nav-item.active .nav-icon { opacity: 1; }
+    .sidebar-footer {
+      padding: 16px 12px;
+      border-top: 1px solid var(--border);
+    }
+    .btn-logout {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      padding: 9px 12px;
+      background: none;
+      border: none;
+      color: var(--text-3);
+      font-family: 'Outfit', sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: color 0.15s, background 0.15s;
+      text-transform: uppercase;
+    }
+    .btn-logout:hover { color: var(--text-2); background: var(--surface-2); }
+
+    /* Main */
+    .main { margin-left: var(--sidebar-w); flex: 1; min-height: 100vh; display: flex; flex-direction: column; }
+    .main-header {
+      padding: 28px 32px 0;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .page-title {
+      font-family: 'Cormorant Garant', serif;
+      font-size: 34px;
+      font-weight: 300;
+      color: var(--text-1);
+      letter-spacing: 0.01em;
+      line-height: 1.1;
+    }
+    .page-subtitle {
+      font-size: 11px;
+      color: var(--text-3);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+    .content-area { padding: 24px 32px 48px; flex: 1; }
+
+    /* ── Stat Cards ─────────────────────────────────────────── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 8px;
+    }
+    .stat-card {
+      background: var(--surface-1);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .stat-card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(200,169,110,0.4), transparent);
+    }
+    .stat-card:hover { border-color: var(--gold-border); }
+    .stat-label {
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-bottom: 14px;
+    }
+    .stat-value {
+      font-family: 'Cormorant Garant', serif;
+      font-size: 44px;
+      font-weight: 300;
+      color: var(--gold);
+      line-height: 1;
+      letter-spacing: -0.01em;
+    }
+    .stat-prefix {
+      font-size: 20px;
+      color: var(--text-3);
+      vertical-align: super;
+      font-weight: 300;
+      margin-right: 1px;
+    }
+
+    /* ── Tables ─────────────────────────────────────────────── */
+    .table-wrap {
+      background: var(--surface-1);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .table-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .filter-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+    .chip {
+      padding: 5px 12px;
+      border-radius: 100px;
+      border: 1px solid var(--border);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      background: none;
+      color: var(--text-2);
+      transition: all 0.15s;
+      font-family: 'Outfit', sans-serif;
+    }
+    .chip:hover { border-color: var(--gold-border); color: var(--text-1); }
+    .chip.active { background: var(--gold-dim); border-color: var(--gold-border); color: var(--gold); }
+    .search-input {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-1);
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      padding: 8px 12px;
+      outline: none;
+      width: 220px;
+      transition: border-color 0.2s;
+    }
+    .search-input:focus { border-color: var(--gold-border); }
+    .search-input::placeholder { color: var(--text-3); }
+    table { width: 100%; border-collapse: collapse; }
+    th {
+      padding: 11px 20px;
+      text-align: left;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 14px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      vertical-align: middle;
+      font-size: 13px;
+      color: var(--text-1);
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,0.012); }
+
+    /* ── Status Badges ─────────────────────────────────────── */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px;
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+    .badge::before {
+      content: '';
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: currentColor;
+      flex-shrink: 0;
+    }
+    .badge-prospecto    { background: rgba(120,120,130,0.1);  color: #8888a0; }
+    .badge-cotizacion   { background: rgba(200,169,110,0.12); color: var(--gold); }
+    .badge-firmado      { background: rgba(110,158,130,0.12); color: #6e9e82; }
+    .badge-activo       { background: rgba(94,184,112,0.12);  color: #5eb870; }
+    .badge-terminado    { background: rgba(110,126,158,0.1);  color: #6e7e9e; }
+    .badge-cancelado    { background: rgba(158,110,110,0.1);  color: #9e6e6e; }
+    .badge-pfae { background: rgba(200,169,110,0.1); color: var(--gold); }
+    .badge-pm   { background: rgba(110,126,158,0.1); color: #8e9ebe; }
+
+    /* ── Buttons ────────────────────────────────────────────── */
+    .btn-action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px; height: 30px;
+      border-radius: 6px;
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-2);
+      cursor: pointer;
+      transition: all 0.15s;
+      flex-shrink: 0;
+    }
+    .btn-action:hover { background: var(--surface-2); color: var(--text-1); border-color: rgba(255,255,255,0.12); }
+    .btn-action.danger:hover { background: rgba(158,110,110,0.1); color: #c26b6b; border-color: rgba(158,110,110,0.2); }
+    .btn-action.whatsapp:hover { background: rgba(37,211,102,0.08); color: #25d166; border-color: rgba(37,211,102,0.2); }
+    .btn-advance {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 5px 10px;
+      border-radius: 6px;
+      background: var(--gold-dim);
+      border: 1px solid var(--gold-border);
+      color: var(--gold);
+      font-family: 'Outfit', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+    }
+    .btn-advance:hover { background: rgba(200,169,110,0.2); }
+    .btn-add {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 16px;
+      background: var(--gold);
+      border: none;
+      border-radius: 7px;
+      color: #080809;
+      font-family: 'Outfit', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      flex-shrink: 0;
+    }
+    .btn-add:hover { opacity: 0.88; }
+    .btn-add:active { transform: scale(0.98); }
+    .actions-cell { display: flex; gap: 6px; align-items: center; }
+
+    /* ── Empty State ─────────────────────────────────────────── */
+    .empty-state {
+      padding: 60px 20px;
+      text-align: center;
+      color: var(--text-3);
+      font-size: 13px;
+    }
+    .empty-state p { margin-top: 6px; font-size: 12px; }
+
+    /* ── Drawer ──────────────────────────────────────────────── */
+    .drawer-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 200;
+      backdrop-filter: blur(2px);
+    }
+    .drawer-overlay.open { display: block; }
+    .drawer {
+      position: fixed;
+      top: 0; right: 0; bottom: 0;
+      width: 100%; max-width: 440px;
+      background: var(--surface-1);
+      border-left: 1px solid var(--gold-border);
+      z-index: 201;
+      display: flex;
+      flex-direction: column;
+      transform: translateX(100%);
+      transition: transform 0.3s cubic-bezier(0.32, 0, 0.15, 1);
+      box-shadow: -24px 0 80px rgba(0,0,0,0.5);
+    }
+    .drawer.open { transform: translateX(0); }
+    .drawer-header {
+      padding: 24px 28px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .drawer-title {
+      font-family: 'Cormorant Garant', serif;
+      font-size: 22px;
+      font-weight: 400;
+      color: var(--text-1);
+    }
+    .drawer-close {
+      width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-2);
+      cursor: pointer;
+      transition: all 0.15s;
+      font-size: 18px;
+      line-height: 1;
+    }
+    .drawer-close:hover { background: var(--surface-2); color: var(--text-1); }
+    .drawer-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .drawer-footer {
+      padding: 20px 28px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 10px;
+    }
+    .form-group { display: flex; flex-direction: column; gap: 8px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-select {
+      width: 100%;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text-1);
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      padding: 12px 36px 12px 14px;
+      outline: none;
+      transition: border-color 0.2s;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235a5450' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+    }
+    .form-select:focus { border-color: var(--gold-border); }
+    .form-select option { background: #1e1e21; }
+    .form-textarea {
+      width: 100%;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text-1);
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      padding: 12px 14px;
+      outline: none;
+      transition: border-color 0.2s;
+      resize: vertical;
+      min-height: 80px;
+    }
+    .form-textarea:focus { border-color: var(--gold-border); }
+    .form-textarea::placeholder { color: var(--text-3); }
+    .btn-secondary {
+      flex: 1;
+      padding: 12px;
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text-2);
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-secondary:hover { background: var(--surface-2); color: var(--text-1); }
+    .btn-submit {
+      flex: 2;
+      padding: 12px;
+      background: var(--gold);
+      border: none;
+      border-radius: var(--radius);
+      color: #080809;
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+    .btn-submit:hover { opacity: 0.88; }
+    .btn-submit:active { transform: scale(0.98); }
+
+    /* ── Confirm Modal ───────────────────────────────────────── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.65);
+      z-index: 300;
+      backdrop-filter: blur(3px);
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-card {
+      width: 100%;
+      max-width: 380px;
+      margin: 20px;
+      background: var(--surface-2);
+      border: 1px solid var(--gold-border);
+      border-radius: 12px;
+      padding: 32px 28px 24px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+    }
+    .modal-title {
+      font-family: 'Cormorant Garant', serif;
+      font-size: 22px;
+      font-weight: 400;
+      color: var(--text-1);
+      margin-bottom: 10px;
+    }
+    .modal-body { font-size: 13px; color: var(--text-2); margin-bottom: 24px; line-height: 1.6; }
+    .modal-actions { display: flex; gap: 10px; }
+    .btn-cancel-modal {
+      flex: 1;
+      padding: 11px;
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text-2);
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-cancel-modal:hover { background: var(--surface-3); color: var(--text-1); }
+    .btn-confirm-modal {
+      flex: 1;
+      padding: 11px;
+      background: rgba(158,110,110,0.12);
+      border: 1px solid rgba(158,110,110,0.25);
+      border-radius: var(--radius);
+      color: #c26b6b;
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-confirm-modal:hover { background: rgba(158,110,110,0.2); }
+
+    /* ── Toast ──────────────────────────────────────────────── */
+    .toast-container {
+      position: fixed;
+      bottom: 24px; right: 24px;
+      z-index: 400;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+    }
+    .toast {
+      padding: 12px 18px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 13px;
+      color: var(--text-1);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      animation: toastIn 0.25s ease forwards;
+      max-width: 300px;
+    }
+    .toast.success { border-color: rgba(94,184,112,0.3); color: #5eb870; }
+    .toast.error   { border-color: rgba(194,107,107,0.3); color: #c26b6b; }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Loading row ─────────────────────────────────────────── */
+    .loading-row td {
+      padding: 48px;
+      text-align: center;
+      color: var(--text-3);
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    /* ── Amount ──────────────────────────────────────────────── */
+    .amount { font-family: 'Cormorant Garant', serif; font-size: 16px; font-weight: 400; }
+    .amount-prefix { font-size: 11px; color: var(--text-3); margin-right: 1px; }
+
+    /* ── Mobile ──────────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .main { margin-left: 0; }
+      .main-header { padding: 20px 20px 0; }
+      .content-area { padding: 16px 20px 80px; }
+      .stats-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+      .stat-value { font-size: 36px; }
+      th, td { padding: 10px 14px; }
+      .hide-mobile { display: none; }
+      .drawer { max-width: 100%; }
+      .form-row { grid-template-columns: 1fr; }
+      .bottom-nav {
+        display: flex;
+        position: fixed;
+        bottom: 0; left: 0; right: 0;
+        background: var(--surface-1);
+        border-top: 1px solid var(--border);
+        z-index: 100;
+        padding-bottom: env(safe-area-inset-bottom, 0);
+      }
+      .bottom-nav-item {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 3px;
+        padding: 10px 4px;
+        background: none;
+        border: none;
+        color: var(--text-3);
+        font-family: 'Outfit', sans-serif;
+        font-size: 9px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: color 0.15s;
+      }
+      .bottom-nav-item.active { color: var(--gold); }
+      .bottom-nav-item svg { width: 18px; height: 18px; }
+    }
+    @media (min-width: 769px) { .bottom-nav { display: none; } }
+
+    /* ── Scrollbar ───────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.07); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.13); }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════ LOGIN ══════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">Omar Leasing</div>
+    <div class="login-sub">Panel de Administración</div>
+    <label class="field-label" for="token-input">Clave de acceso</label>
+    <input type="password" id="token-input" class="field-input" placeholder="••••••••••••" autocomplete="current-password">
+    <button class="btn-primary" onclick="doLogin()">Ingresar</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════ APP ═══════════════════════════════ -->
+<div id="app">
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-name">Omar Leasing</div>
+      <div class="sidebar-logo-sub">CRM</div>
+    </div>
+    <div class="sidebar-nav">
+      <button class="nav-item active" data-view="dashboard" onclick="navigate('dashboard')">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="1" y="1" width="6" height="6" rx="1.5"/>
+          <rect x="9" y="1" width="6" height="6" rx="1.5"/>
+          <rect x="1" y="9" width="6" height="6" rx="1.5"/>
+          <rect x="9" y="9" width="6" height="6" rx="1.5"/>
+        </svg>
+        Dashboard
+      </button>
+      <button class="nav-item" data-view="pipeline" onclick="navigate('pipeline')">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M1 4h14M1 8h10M1 12h6"/>
+        </svg>
+        Pipeline
+      </button>
+      <button class="nav-item" data-view="clientes" onclick="navigate('clientes')">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="8" cy="5" r="3"/>
+          <path d="M1 14c0-3.314 3.134-6 7-6s7 2.686 7 6"/>
+        </svg>
+        Clientes
+      </button>
+      <button class="nav-item" data-view="vehiculos" onclick="navigate('vehiculos')">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M1 9l2-4h10l2 4"/>
+          <rect x="1" y="9" width="14" height="4" rx="1"/>
+          <circle cx="4.5" cy="13.5" r="1.5"/>
+          <circle cx="11.5" cy="13.5" r="1.5"/>
+        </svg>
+        Vehículos
+      </button>
+    </div>
+    <div class="sidebar-footer">
+      <button class="btn-logout" onclick="doLogout()">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M6 8h9M12 5l3 3-3 3M10 4V2H1v12h9v-2"/>
+        </svg>
+        Cerrar sesión
+      </button>
+    </div>
+  </nav>
+
+  <!-- Bottom nav (mobile) -->
+  <nav class="bottom-nav">
+    <button class="bottom-nav-item active" data-view="dashboard" onclick="navigate('dashboard')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="1" y="1" width="6" height="6" rx="1.5"/>
+        <rect x="9" y="1" width="6" height="6" rx="1.5"/>
+        <rect x="1" y="9" width="6" height="6" rx="1.5"/>
+        <rect x="9" y="9" width="6" height="6" rx="1.5"/>
+      </svg>
+      Dashboard
+    </button>
+    <button class="bottom-nav-item" data-view="pipeline" onclick="navigate('pipeline')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M1 4h14M1 8h10M1 12h6"/>
+      </svg>
+      Pipeline
+    </button>
+    <button class="bottom-nav-item" data-view="clientes" onclick="navigate('clientes')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="8" cy="5" r="3"/>
+        <path d="M1 14c0-3.314 3.134-6 7-6s7 2.686 7 6"/>
+      </svg>
+      Clientes
+    </button>
+    <button class="bottom-nav-item" data-view="vehiculos" onclick="navigate('vehiculos')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M1 9l2-4h10l2 4"/>
+        <rect x="1" y="9" width="14" height="4" rx="1"/>
+        <circle cx="4.5" cy="13.5" r="1.5"/>
+        <circle cx="11.5" cy="13.5" r="1.5"/>
+      </svg>
+      Vehículos
+    </button>
+  </nav>
+
+  <!-- Main content -->
+  <main class="main">
+    <div class="main-header">
+      <div>
+        <div class="page-title" id="page-title">Dashboard</div>
+        <div class="page-subtitle" id="page-subtitle">Resumen general</div>
+      </div>
+      <div id="header-action"></div>
+    </div>
+    <div class="content-area" id="content-area"></div>
+  </main>
+</div>
+
+<!-- ════════════════════════════════ DRAWER ════════════════════════════════ -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-header">
+    <div class="drawer-title" id="drawer-title">Formulario</div>
+    <button class="drawer-close" onclick="closeDrawer()">×</button>
+  </div>
+  <div class="drawer-body" id="drawer-body"></div>
+  <div class="drawer-footer" id="drawer-footer"></div>
+</div>
+
+<!-- ══════════════════════════ CONFIRM MODAL ═══════════════════════════════ -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal-card">
+    <div class="modal-title" id="modal-title">Confirmar</div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel-modal" onclick="closeModal()">Cancelar</button>
+      <button class="btn-confirm-modal" id="modal-confirm-btn">Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ TOASTS ════════════════════════════════ -->
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+// ══════════════════════════════════ STATE ════════════════════════════════════
+const state = {
+  view: 'dashboard',
+  clients: [],
+  vehicles: [],
+  deals: [],
+  statusFilter: null,
+  clientSearch: '',
+  vehicleSearch: '',
+  editingId: null,
+};
+
+// ═══════════════════════════════════ AUTH ════════════════════════════════════
+function getToken() { return localStorage.getItem('adminToken'); }
+
+function doLogin() {
+  const t = document.getElementById('token-input').value.trim();
+  if (!t) return;
+  localStorage.setItem('adminToken', t);
+  document.getElementById('login-error').textContent = '';
+  initApp();
+}
+
+function doLogout() {
+  localStorage.removeItem('adminToken');
+  document.getElementById('app').classList.remove('visible');
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('token-input').value = '';
+}
+
+document.getElementById('token-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+
+// ════════════════════════════════════ API ════════════════════════════════════
+async function apiCall(path, opts = {}) {
+  const res = await fetch(path, {
+    ...opts,
+    headers: {
+      'x-admin-token': getToken(),
+      'Content-Type': 'application/json',
+      ...(opts.headers || {}),
+    },
+  });
+  if (res.status === 401) { doLogout(); throw new Error('No autorizado'); }
+  if (res.status === 204) return null;
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Error del servidor');
+  return data;
+}
+
+// ═══════════════════════════════════ TOAST ════════════════════════════════════
+function showToast(msg, type = 'success') {
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+
+// ═════════════════════════════════ MODAL ═════════════════════════════════════
+let _onConfirm = null;
+function confirmModal(title, body, onConfirm) {
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-body').textContent = body;
+  _onConfirm = onConfirm;
+  document.getElementById('modal-overlay').classList.add('open');
+  document.getElementById('modal-confirm-btn').onclick = () => { closeModal(); _onConfirm && _onConfirm(); };
+}
+function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
+
+// ═══════════════════════════════════ DRAWER ════════════════════════════════════
+function openDrawer(title, bodyHTML, footerHTML) {
+  document.getElementById('drawer-title').textContent = title;
+  document.getElementById('drawer-body').innerHTML = bodyHTML;
+  document.getElementById('drawer-footer').innerHTML = footerHTML;
+  document.getElementById('drawer-overlay').classList.add('open');
+  document.getElementById('drawer').classList.add('open');
+}
+function closeDrawer() {
+  document.getElementById('drawer-overlay').classList.remove('open');
+  document.getElementById('drawer').classList.remove('open');
+  state.editingId = null;
+}
+
+// ═══════════════════════════════ NAVIGATION ════════════════════════════════════
+const PAGE_META = {
+  dashboard: { title: 'Dashboard',  subtitle: 'Resumen general' },
+  pipeline:  { title: 'Pipeline',   subtitle: 'Gestión de contratos' },
+  clientes:  { title: 'Clientes',   subtitle: 'Cartera de clientes' },
+  vehiculos: { title: 'Vehículos',  subtitle: 'Flota disponible' },
+};
+
+async function navigate(view) {
+  state.view = view;
+  document.querySelectorAll('[data-view]').forEach(el => {
+    el.classList.toggle('active', el.dataset.view === view);
+  });
+  const meta = PAGE_META[view];
+  document.getElementById('page-title').textContent = meta.title;
+  document.getElementById('page-subtitle').textContent = meta.subtitle;
+  document.getElementById('header-action').innerHTML = '';
+  if (view === 'dashboard') await renderDashboard();
+  if (view === 'pipeline')  await renderPipeline();
+  if (view === 'clientes')  await renderClientes();
+  if (view === 'vehiculos') await renderVehiculos();
+}
+
+// ════════════════════════════════ HELPERS ═════════════════════════════════════
+const STATUS_LABELS = {
+  prospecto:          'Prospecto',
+  cotizacion_enviada: 'Cotización',
+  contrato_firmado:   'Firmado',
+  activo:             'Activo',
+  terminado:          'Terminado',
+  cancelado:          'Cancelado',
+};
+const STATUS_BADGE_CLASS = {
+  prospecto:          'badge-prospecto',
+  cotizacion_enviada: 'badge-cotizacion',
+  contrato_firmado:   'badge-firmado',
+  activo:             'badge-activo',
+  terminado:          'badge-terminado',
+  cancelado:          'badge-cancelado',
+};
+const NEXT_STATUS = {
+  prospecto:          'cotizacion_enviada',
+  cotizacion_enviada: 'contrato_firmado',
+  contrato_firmado:   'activo',
+  activo:             'terminado',
+};
+const NEXT_LABEL = {
+  prospecto:          'Cotizar',
+  cotizacion_enviada: 'Firmar',
+  contrato_firmado:   'Activar',
+  activo:             'Finalizar',
+};
+
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function fmtCurrency(n) {
+  if (!n && n !== 0) return '—';
+  return new Intl.NumberFormat('es-MX', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(n);
+}
+function waUrl(phone) {
+  if (!phone) return null;
+  const clean = phone.replace(/\D/g, '');
+  const num = clean.startsWith('52') ? clean : `52${clean}`;
+  return `https://wa.me/${num}`;
+}
+function badgeHtml(status) {
+  return `<span class="badge ${STATUS_BADGE_CLASS[status] || ''}">${STATUS_LABELS[status] || status}</span>`;
+}
+function loadingTable(cols) {
+  document.getElementById('content-area').innerHTML =
+    `<div class="table-wrap"><table><tbody><tr class="loading-row"><td colspan="${cols}">Cargando...</td></tr></tbody></table></div>`;
+}
+
+// ═══════════════════════════════ DASHBOARD ════════════════════════════════════
+async function renderDashboard() {
+  loadingTable(1);
+  try {
+    const stats = await apiCall('/api/admin/stats');
+    document.getElementById('content-area').innerHTML = `
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total Clientes</div>
+          <div class="stat-value">${stats.total_clientes ?? 0}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Deals Activos</div>
+          <div class="stat-value">${stats.deals_activos ?? 0}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Valor Cartera / mes</div>
+          <div class="stat-value" style="font-size:36px">
+            <span class="stat-prefix">$</span>${fmtCurrency(stats.valor_cartera)}
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Deals este Mes</div>
+          <div class="stat-value">${stats.deals_este_mes ?? 0}</div>
+        </div>
+      </div>`;
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+// ════════════════════════════════ PIPELINE ════════════════════════════════════
+async function renderPipeline() {
+  document.getElementById('header-action').innerHTML =
+    `<button class="btn-add" onclick="showDealForm()">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 1v10M1 6h10"/></svg>
+      Nuevo Deal
+    </button>`;
+  loadingTable(5);
+  try {
+    await Promise.all([loadClients(), loadVehicles()]);
+    const url = state.statusFilter ? `/api/admin/deals?status=${state.statusFilter}` : '/api/admin/deals';
+    state.deals = await apiCall(url);
+    renderPipelineContent();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+function renderPipelineContent() {
+  const chips = Object.keys(STATUS_LABELS).map(s =>
+    `<button class="chip ${state.statusFilter === s ? 'active' : ''}"
+      onclick="filterDeals('${esc(s)}')">${STATUS_LABELS[s]}</button>`
+  ).join('');
+
+  const waIconSvg = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/></svg>`;
+
+  const rows = state.deals.length === 0
+    ? `<tr><td colspan="5"><div class="empty-state">Sin deals<p>Crea el primer deal con el botón superior.</p></div></td></tr>`
+    : state.deals.map(d => {
+        const c = d.client;
+        const v = d.vehicle;
+        const clientName = c ? esc(c.full_name) : '—';
+        const clientBadge = c && c.type ? `<span class="badge ${c.type === 'PM' ? 'badge-pm' : 'badge-pfae'}" style="margin-left:6px">${c.type}</span>` : '';
+        const vehicleName = v ? `${esc(v.brand)} ${esc(v.model)}` : '—';
+        const wa = c && c.phone ? waUrl(c.phone) : null;
+        const nextS = NEXT_STATUS[d.status];
+        const advanceBtn = nextS
+          ? `<button class="btn-advance" data-id="${esc(d.id)}" data-next="${esc(nextS)}" onclick="advanceDeal(this)">${esc(NEXT_LABEL[d.status])} →</button>`
+          : '';
+        return `<tr>
+          <td>${clientName}${clientBadge}</td>
+          <td class="hide-mobile">${vehicleName}</td>
+          <td>${badgeHtml(d.status)}</td>
+          <td class="hide-mobile"><span class="amount"><span class="amount-prefix">$</span>${fmtCurrency(d.monthly_payment)}</span></td>
+          <td>
+            <div class="actions-cell">
+              ${advanceBtn}
+              ${wa ? `<a href="${wa}" target="_blank" rel="noopener"><button class="btn-action whatsapp" title="WhatsApp">${waIconSvg}</button></a>` : ''}
+              <button class="btn-action" data-id="${esc(d.id)}" onclick="editDeal(this.dataset.id)" title="Editar">
+                <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11.5 2.5l2 2L5 13H3v-2L11.5 2.5z"/><path d="M9.5 4.5l2 2"/></svg>
+              </button>
+              <button class="btn-action danger" data-id="${esc(d.id)}" data-name="${clientName}" onclick="deleteDeal(this)" title="Eliminar">
+                <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M5 4V2h6v2M6 7v5M10 7v5M3 4l1 9h8l1-9"/></svg>
+              </button>
+            </div>
+          </td>
+        </tr>`;
+      }).join('');
+
+  document.getElementById('content-area').innerHTML = `
+    <div class="table-wrap">
+      <div class="table-toolbar">
+        <div class="filter-chips">
+          <button class="chip ${!state.statusFilter ? 'active' : ''}" onclick="filterDeals(null)">Todos</button>
+          ${chips}
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Cliente</th>
+            <th class="hide-mobile">Vehículo</th>
+            <th>Estado</th>
+            <th class="hide-mobile">Renta / mes</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+async function filterDeals(status) {
+  state.statusFilter = (status === state.statusFilter) ? null : status;
+  const url = state.statusFilter ? `/api/admin/deals?status=${state.statusFilter}` : '/api/admin/deals';
+  try {
+    state.deals = await apiCall(url);
+    renderPipelineContent();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+async function advanceDeal(btn) {
+  const { id, next } = btn.dataset;
+  try {
+    await apiCall(`/api/admin/deals/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status: next }) });
+    showToast(`Movido a: ${STATUS_LABELS[next]}`);
+    await renderPipeline();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+async function deleteDeal(btn) {
+  const { id, name } = btn.dataset;
+  confirmModal('Eliminar deal', `¿Eliminar el deal de ${name}? Esta acción no se puede deshacer.`, async () => {
+    try {
+      await apiCall(`/api/admin/deals/${id}`, { method: 'DELETE' });
+      showToast('Deal eliminado');
+      await renderPipeline();
+    } catch(e) { showToast(e.message, 'error'); }
+  });
+}
+
+async function editDeal(id) {
+  try {
+    const deal = await apiCall(`/api/admin/deals/${id}`);
+    showDealForm(deal);
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+function showDealForm(deal = null) {
+  state.editingId = deal ? deal.id : null;
+  const clientOpts = state.clients.map(c =>
+    `<option value="${esc(c.id)}" ${deal && deal.client_id === c.id ? 'selected' : ''}>${esc(c.full_name)}${c.type ? ` (${c.type})` : ''}</option>`
+  ).join('');
+  const vehicleOpts = `<option value="">— Sin vehículo —</option>` + state.vehicles.map(v =>
+    `<option value="${esc(v.id)}" ${deal && deal.vehicle_id === v.id ? 'selected' : ''}>${esc(v.brand)} ${esc(v.model)}${v.year ? ` ${v.year}` : ''}</option>`
+  ).join('');
+  const statusOpts = Object.entries(STATUS_LABELS).map(([k, v]) =>
+    `<option value="${k}" ${deal ? (deal.status === k ? 'selected' : '') : (k === 'prospecto' ? 'selected' : '')}>${v}</option>`
+  ).join('');
+
+  openDrawer(
+    deal ? 'Editar Deal' : 'Nuevo Deal',
+    `<div class="form-group">
+      <label class="field-label">Cliente *</label>
+      <select id="f-client" class="form-select">${clientOpts}</select>
+    </div>
+    <div class="form-group">
+      <label class="field-label">Vehículo</label>
+      <select id="f-vehicle" class="form-select">${vehicleOpts}</select>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="field-label">Estado</label>
+        <select id="f-status" class="form-select">${statusOpts}</select>
+      </div>
+      <div class="form-group">
+        <label class="field-label">Renta mensual (MXN)</label>
+        <input id="f-monthly" class="field-input" type="number" placeholder="0" value="${deal ? (deal.monthly_payment || '') : ''}">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="field-label">Inicio contrato</label>
+        <input id="f-start" class="field-input" type="date" value="${deal ? (deal.contract_start || '') : ''}">
+      </div>
+      <div class="form-group">
+        <label class="field-label">Fin contrato</label>
+        <input id="f-end" class="field-input" type="date" value="${deal ? (deal.contract_end || '') : ''}">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="field-label">Notas</label>
+      <textarea id="f-notes" class="form-textarea" placeholder="Observaciones...">${deal ? esc(deal.notes || '') : ''}</textarea>
+    </div>`,
+    `<button class="btn-secondary" onclick="closeDrawer()">Cancelar</button>
+     <button class="btn-submit" onclick="saveDeal()">${deal ? 'Guardar' : 'Crear Deal'}</button>`
+  );
+}
+
+async function saveDeal() {
+  const body = {
+    client_id:       document.getElementById('f-client').value,
+    vehicle_id:      document.getElementById('f-vehicle').value || null,
+    status:          document.getElementById('f-status').value,
+    monthly_payment: parseFloat(document.getElementById('f-monthly').value) || null,
+    contract_start:  document.getElementById('f-start').value || null,
+    contract_end:    document.getElementById('f-end').value || null,
+    notes:           document.getElementById('f-notes').value.trim() || null,
+  };
+  if (!body.client_id) { showToast('Selecciona un cliente', 'error'); return; }
+  try {
+    if (state.editingId) {
+      await apiCall(`/api/admin/deals/${state.editingId}`, { method: 'PATCH', body: JSON.stringify(body) });
+      showToast('Deal actualizado');
+    } else {
+      await apiCall('/api/admin/deals', { method: 'POST', body: JSON.stringify(body) });
+      showToast('Deal creado');
+    }
+    closeDrawer();
+    await renderPipeline();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+// ════════════════════════════════ CLIENTES ════════════════════════════════════
+async function loadClients() {
+  state.clients = await apiCall('/api/admin/clients');
+}
+
+async function renderClientes() {
+  document.getElementById('header-action').innerHTML =
+    `<button class="btn-add" onclick="showClientForm()">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 1v10M1 6h10"/></svg>
+      Nuevo Cliente
+    </button>`;
+  loadingTable(5);
+  try {
+    await loadClients();
+    renderClientesContent();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+function renderClientesContent() {
+  const q = state.clientSearch.toLowerCase();
+  const filtered = state.clients.filter(c => !q ||
+    (c.full_name||'').toLowerCase().includes(q) ||
+    (c.company||'').toLowerCase().includes(q) ||
+    (c.phone||'').includes(q)
+  );
+
+  const waIconSvg = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/></svg>`;
+
+  const rows = filtered.length === 0
+    ? `<tr><td colspan="5"><div class="empty-state">Sin clientes<p>Agrega el primer cliente con el botón superior.</p></div></td></tr>`
+    : filtered.map(c => {
+        const wa = c.phone ? waUrl(c.phone) : null;
+        return `<tr>
+          <td>
+            <div style="font-weight:500">${esc(c.full_name)}</div>
+            ${c.company ? `<div style="font-size:11px;color:var(--text-3);margin-top:2px">${esc(c.company)}</div>` : ''}
+          </td>
+          <td>${c.type ? `<span class="badge ${c.type === 'PM' ? 'badge-pm' : 'badge-pfae'}">${c.type}</span>` : '—'}</td>
+          <td class="hide-mobile">${c.phone ? esc(c.phone) : '—'}</td>
+          <td class="hide-mobile">${c.source ? esc(c.source) : '—'}</td>
+          <td>
+            <div class="actions-cell">
+              ${wa ? `<a href="${wa}" target="_blank" rel="noopener"><button class="btn-action whatsapp" title="WhatsApp">${waIconSvg}</button></a>` : ''}
+              <button class="btn-action" data-id="${esc(c.id)}" onclick="editClient(this.dataset.id)" title="Editar">
+                <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11.5 2.5l2 2L5 13H3v-2L11.5 2.5z"/><path d="M9.5 4.5l2 2"/></svg>
+              </button>
+              <button class="btn-action danger" data-id="${esc(c.id)}" data-name="${esc(c.full_name)}" onclick="deleteClient(this)" title="Eliminar">
+                <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M5 4V2h6v2M6 7v5M10 7v5M3 4l1 9h8l1-9"/></svg>
+              </button>
+            </div>
+          </td>
+        </tr>`;
+      }).join('');
+
+  document.getElementById('content-area').innerHTML = `
+    <div class="table-wrap">
+      <div class="table-toolbar">
+        <input class="search-input" type="text" placeholder="Buscar cliente..."
+          value="${esc(state.clientSearch)}"
+          oninput="state.clientSearch=this.value; renderClientesContent()">
+        <span style="font-size:12px;color:var(--text-3)">${filtered.length} cliente${filtered.length !== 1 ? 's' : ''}</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Tipo</th>
+            <th class="hide-mobile">Teléfono</th>
+            <th class="hide-mobile">Origen</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+function editClient(id) {
+  const c = state.clients.find(x => x.id === id);
+  if (c) showClientForm(c);
+}
+
+async function deleteClient(btn) {
+  const { id, name } = btn.dataset;
+  confirmModal('Eliminar cliente', `¿Eliminar a ${name}? Se perderán todos sus datos.`, async () => {
+    try {
+      await apiCall(`/api/admin/clients/${id}`, { method: 'DELETE' });
+      showToast('Cliente eliminado');
+      await renderClientes();
+    } catch(e) { showToast(e.message, 'error'); }
+  });
+}
+
+function showClientForm(client = null) {
+  state.editingId = client ? client.id : null;
+  openDrawer(
+    client ? 'Editar Cliente' : 'Nuevo Cliente',
+    `<div class="form-group">
+      <label class="field-label">Nombre completo *</label>
+      <input id="cf-name" class="field-input" type="text" placeholder="Nombre completo" value="${client ? esc(client.full_name) : ''}">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="field-label">Tipo</label>
+        <select id="cf-type" class="form-select">
+          <option value="">— Seleccionar —</option>
+          <option value="PFAE" ${client && client.type === 'PFAE' ? 'selected' : ''}>PFAE</option>
+          <option value="PM" ${client && client.type === 'PM' ? 'selected' : ''}>PM</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="field-label">Origen</label>
+        <select id="cf-source" class="form-select">
+          <option value="">— Seleccionar —</option>
+          <option value="referral" ${client && client.source === 'referral' ? 'selected' : ''}>Referido</option>
+          <option value="landing" ${client && client.source === 'landing' ? 'selected' : ''}>Landing</option>
+          <option value="whatsapp" ${client && client.source === 'whatsapp' ? 'selected' : ''}>WhatsApp</option>
+          <option value="other" ${client && client.source === 'other' ? 'selected' : ''}>Otro</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="field-label">Empresa</label>
+      <input id="cf-company" class="field-input" type="text" placeholder="Nombre de empresa" value="${client ? esc(client.company || '') : ''}">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="field-label">Teléfono</label>
+        <input id="cf-phone" class="field-input" type="tel" placeholder="55 1234 5678" value="${client ? esc(client.phone || '') : ''}">
+      </div>
+      <div class="form-group">
+        <label class="field-label">Email</label>
+        <input id="cf-email" class="field-input" type="email" placeholder="correo@ejemplo.com" value="${client ? esc(client.email || '') : ''}">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="field-label">Notas</label>
+      <textarea id="cf-notes" class="form-textarea" placeholder="Observaciones...">${client ? esc(client.notes || '') : ''}</textarea>
+    </div>`,
+    `<button class="btn-secondary" onclick="closeDrawer()">Cancelar</button>
+     <button class="btn-submit" onclick="saveClient()">${client ? 'Guardar' : 'Crear Cliente'}</button>`
+  );
+}
+
+async function saveClient() {
+  const body = {
+    full_name: document.getElementById('cf-name').value.trim(),
+    type:      document.getElementById('cf-type').value || null,
+    source:    document.getElementById('cf-source').value || null,
+    company:   document.getElementById('cf-company').value.trim() || null,
+    phone:     document.getElementById('cf-phone').value.trim() || null,
+    email:     document.getElementById('cf-email').value.trim() || null,
+    notes:     document.getElementById('cf-notes').value.trim() || null,
+  };
+  if (!body.full_name) { showToast('El nombre es requerido', 'error'); return; }
+  try {
+    if (state.editingId) {
+      await apiCall(`/api/admin/clients/${state.editingId}`, { method: 'PATCH', body: JSON.stringify(body) });
+      showToast('Cliente actualizado');
+    } else {
+      await apiCall('/api/admin/clients', { method: 'POST', body: JSON.stringify(body) });
+      showToast('Cliente creado');
+    }
+    closeDrawer();
+    await renderClientes();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+// ═══════════════════════════════ VEHÍCULOS ═════════════════════════════════════
+async function loadVehicles() {
+  state.vehicles = await apiCall('/api/admin/vehicles');
+}
+
+async function renderVehiculos() {
+  document.getElementById('header-action').innerHTML =
+    `<button class="btn-add" onclick="showVehicleForm()">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 1v10M1 6h10"/></svg>
+      Nuevo Vehículo
+    </button>`;
+  loadingTable(4);
+  try {
+    await loadVehicles();
+    renderVehiculosContent();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+function renderVehiculosContent() {
+  const q = state.vehicleSearch.toLowerCase();
+  const filtered = state.vehicles.filter(v => !q ||
+    (v.brand||'').toLowerCase().includes(q) ||
+    (v.model||'').toLowerCase().includes(q) ||
+    (v.color||'').toLowerCase().includes(q)
+  );
+
+  const rows = filtered.length === 0
+    ? `<tr><td colspan="4"><div class="empty-state">Sin vehículos<p>Agrega el primer vehículo con el botón superior.</p></div></td></tr>`
+    : filtered.map(v => `<tr>
+        <td>
+          <div style="font-weight:500">${esc(v.brand)} ${esc(v.model)}</div>
+          ${v.color ? `<div style="font-size:11px;color:var(--text-3);margin-top:2px">${esc(v.color)}</div>` : ''}
+        </td>
+        <td>${v.year || '—'}</td>
+        <td class="hide-mobile"><span class="amount"><span class="amount-prefix">$</span>${fmtCurrency(v.value)}</span></td>
+        <td>
+          <div class="actions-cell">
+            <button class="btn-action" data-id="${esc(v.id)}" onclick="editVehicle(this.dataset.id)" title="Editar">
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11.5 2.5l2 2L5 13H3v-2L11.5 2.5z"/><path d="M9.5 4.5l2 2"/></svg>
+            </button>
+            <button class="btn-action danger" data-id="${esc(v.id)}" data-name="${esc(v.brand+' '+v.model)}" onclick="deleteVehicle(this)" title="Eliminar">
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M5 4V2h6v2M6 7v5M10 7v5M3 4l1 9h8l1-9"/></svg>
+            </button>
+          </div>
+        </td>
+      </tr>`
+    ).join('');
+
+  document.getElementById('content-area').innerHTML = `
+    <div class="table-wrap">
+      <div class="table-toolbar">
+        <input class="search-input" type="text" placeholder="Buscar vehículo..."
+          value="${esc(state.vehicleSearch)}"
+          oninput="state.vehicleSearch=this.value; renderVehiculosContent()">
+        <span style="font-size:12px;color:var(--text-3)">${filtered.length} vehículo${filtered.length !== 1 ? 's' : ''}</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Vehículo</th>
+            <th>Año</th>
+            <th class="hide-mobile">Valor</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+function editVehicle(id) {
+  const v = state.vehicles.find(x => x.id === id);
+  if (v) showVehicleForm(v);
+}
+
+async function deleteVehicle(btn) {
+  const { id, name } = btn.dataset;
+  confirmModal('Eliminar vehículo', `¿Eliminar ${name}? Esta acción no se puede deshacer.`, async () => {
+    try {
+      await apiCall(`/api/admin/vehicles/${id}`, { method: 'DELETE' });
+      showToast('Vehículo eliminado');
+      await renderVehiculos();
+    } catch(e) { showToast(e.message, 'error'); }
+  });
+}
+
+function showVehicleForm(vehicle = null) {
+  state.editingId = vehicle ? vehicle.id : null;
+  openDrawer(
+    vehicle ? 'Editar Vehículo' : 'Nuevo Vehículo',
+    `<div class="form-row">
+      <div class="form-group">
+        <label class="field-label">Marca *</label>
+        <input id="vf-brand" class="field-input" type="text" placeholder="BMW, Mercedes..." value="${vehicle ? esc(vehicle.brand) : ''}">
+      </div>
+      <div class="form-group">
+        <label class="field-label">Modelo *</label>
+        <input id="vf-model" class="field-input" type="text" placeholder="Serie 3, GLC..." value="${vehicle ? esc(vehicle.model) : ''}">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="field-label">Año</label>
+        <input id="vf-year" class="field-input" type="number" placeholder="2024" value="${vehicle ? (vehicle.year || '') : ''}">
+      </div>
+      <div class="form-group">
+        <label class="field-label">Color</label>
+        <input id="vf-color" class="field-input" type="text" placeholder="Negro, Blanco..." value="${vehicle ? esc(vehicle.color || '') : ''}">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="field-label">Valor del vehículo (MXN)</label>
+      <input id="vf-value" class="field-input" type="number" placeholder="800000" value="${vehicle ? (vehicle.value || '') : ''}">
+    </div>
+    <div class="form-group">
+      <label class="field-label">Notas</label>
+      <textarea id="vf-notes" class="form-textarea" placeholder="Especificaciones, equipamiento...">${vehicle ? esc(vehicle.notes || '') : ''}</textarea>
+    </div>`,
+    `<button class="btn-secondary" onclick="closeDrawer()">Cancelar</button>
+     <button class="btn-submit" onclick="saveVehicle()">${vehicle ? 'Guardar' : 'Crear Vehículo'}</button>`
+  );
+}
+
+async function saveVehicle() {
+  const body = {
+    brand:  document.getElementById('vf-brand').value.trim(),
+    model:  document.getElementById('vf-model').value.trim(),
+    year:   parseInt(document.getElementById('vf-year').value) || null,
+    color:  document.getElementById('vf-color').value.trim() || null,
+    value:  parseFloat(document.getElementById('vf-value').value) || null,
+    notes:  document.getElementById('vf-notes').value.trim() || null,
+  };
+  if (!body.brand || !body.model) { showToast('Marca y modelo son requeridos', 'error'); return; }
+  try {
+    if (state.editingId) {
+      await apiCall(`/api/admin/vehicles/${state.editingId}`, { method: 'PATCH', body: JSON.stringify(body) });
+      showToast('Vehículo actualizado');
+    } else {
+      await apiCall('/api/admin/vehicles', { method: 'POST', body: JSON.stringify(body) });
+      showToast('Vehículo creado');
+    }
+    closeDrawer();
+    await renderVehiculos();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+// ════════════════════════════════════ INIT ════════════════════════════════════
+async function initApp() {
+  try {
+    await apiCall('/api/admin/stats');
+  } catch(e) {
+    if (e.message === 'No autorizado') {
+      document.getElementById('login-error').textContent = 'Clave incorrecta. Intenta de nuevo.';
+      localStorage.removeItem('adminToken');
+      return;
+    }
+  }
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').classList.add('visible');
+  await navigate('dashboard');
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeDrawer(); closeModal(); }
+});
+
+if (getToken()) initApp();
+</script>
+</body>
+</html>

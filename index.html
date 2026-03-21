@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Arrendamiento de Vehículos — México</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garant:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --bg:       #080809;
+      --s1:       #0E0E10;
+      --s2:       #141416;
+      --border:   #1F1F23;
+      --gold:     #C8A96E;
+      --gold-lt:  #E8D5A3;
+      --gold-dk:  #7A6030;
+      --white:    #F2F0EB;
+      --muted:    #7E7E86;
+      --muted2:   #42424A;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--white);
+      font-family: 'Outfit', sans-serif;
+      font-weight: 300;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* Grain overlay */
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      pointer-events: none; z-index: 9999;
+      opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 250px;
+    }
+
+    h1, h2, h3, .serif {
+      font-family: 'Cormorant Garant', serif;
+      font-weight: 400;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+    }
+
+    .label {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.68rem;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    /* Scroll reveal */
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.9s cubic-bezier(0.16,1,0.3,1), transform 0.9s cubic-bezier(0.16,1,0.3,1);
+    }
+    .reveal.in { opacity: 1; transform: translateY(0); }
+    .d1 { transition-delay: 0.1s; }
+    .d2 { transition-delay: 0.22s; }
+    .d3 { transition-delay: 0.34s; }
+    .d4 { transition-delay: 0.46s; }
+
+    /* Load animation */
+    @keyframes up {
+      from { opacity: 0; transform: translateY(32px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .load { animation: up 1s cubic-bezier(0.16,1,0.3,1) both; }
+    .l1 { animation-delay: 0.05s; }
+    .l2 { animation-delay: 0.2s; }
+    .l3 { animation-delay: 0.38s; }
+    .l4 { animation-delay: 0.55s; }
+    .l5 { animation-delay: 0.72s; }
+
+    /* ── Nav ── */
+    #nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 1.25rem 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      transition: background 0.4s, border-color 0.4s;
+    }
+    #nav.scrolled {
+      background: rgba(8,8,9,0.9);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-brand {
+      font-family: 'Cormorant Garant', serif;
+      font-size: 1.25rem; font-weight: 500;
+      color: var(--white); text-decoration: none;
+      letter-spacing: 0.02em;
+    }
+    .nav-brand span { color: var(--gold); }
+
+    /* ── Buttons ── */
+    .btn-gold {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.8rem 1.75rem;
+      background: var(--gold); color: #0A0A0B;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.85rem; font-weight: 500; letter-spacing: 0.04em;
+      text-decoration: none; border: none; cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 10px 36px rgba(200,169,110,0.3); }
+    .btn-gold:active { transform: translateY(0); }
+    .btn-gold:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+
+    .btn-outline {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.8rem 1.75rem;
+      background: transparent; color: var(--white);
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.85rem; font-weight: 400; letter-spacing: 0.04em;
+      text-decoration: none; border: 1px solid var(--border); cursor: pointer;
+      transition: transform 0.2s, border-color 0.2s, color 0.2s;
+    }
+    .btn-outline:hover { border-color: var(--gold); color: var(--gold-lt); transform: translateY(-2px); }
+    .btn-outline:active { transform: translateY(0); }
+    .btn-outline:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+
+    /* ── Hero ── */
+    #hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center;
+      padding: 8rem 1.5rem 5rem;
+      position: relative; overflow: hidden;
+    }
+    .hero-glow {
+      position: absolute; top: 35%; left: 50%;
+      transform: translate(-50%,-50%);
+      width: 700px; height: 500px;
+      background: radial-gradient(ellipse, rgba(200,169,110,0.07) 0%, transparent 68%);
+      pointer-events: none;
+    }
+    #hero::after {
+      content: '';
+      position: absolute; bottom: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 1px; height: 80px;
+      background: linear-gradient(to bottom, var(--gold), transparent);
+    }
+    .hero-hl {
+      font-size: clamp(3.8rem, 11vw, 9rem);
+      font-family: 'Cormorant Garant', serif;
+      font-weight: 300; line-height: 0.92;
+      letter-spacing: -0.03em;
+    }
+    .hero-hl em { font-style: italic; color: var(--gold-lt); }
+    .hero-rule {
+      width: 100%; max-width: 560px;
+      height: 1px; margin: 2.5rem auto;
+      background: linear-gradient(to right, transparent, var(--gold), transparent);
+    }
+
+    /* ── Section ── */
+    section { padding: 7rem 1.5rem; }
+    .wrap { max-width: 1080px; margin: 0 auto; }
+    .sh { margin-bottom: 3.5rem; }
+    .sh-row {
+      display: flex; align-items: center; gap: 1rem;
+      margin-bottom: 0.75rem;
+    }
+    .sh-row::after { content: ''; flex: 1; height: 1px; background: var(--border); max-width: 200px; }
+
+    /* ── Benefits grid ── */
+    .benefits {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
+      gap: 1px; background: var(--border);
+      border: 1px solid var(--border);
+    }
+    .b-card {
+      background: var(--s1);
+      padding: 2.5rem 2rem;
+      position: relative;
+      transition: background 0.3s;
+    }
+    .b-card:hover { background: var(--s2); }
+    .b-card::after {
+      content: ''; position: absolute; top: 0; left: 0; bottom: 0;
+      width: 2px; background: var(--gold);
+      transform: scaleY(0); transform-origin: top;
+      transition: transform 0.3s;
+    }
+    .b-card:hover::after { transform: scaleY(1); }
+    .b-icon { width: 36px; height: 36px; color: var(--gold); margin-bottom: 1.25rem; }
+    .b-card h3 { font-size: 1.3rem; margin-bottom: 0.6rem; }
+    .b-card p  { font-size: 0.88rem; color: #888890; line-height: 1.7; }
+
+    /* ── Comparison ── */
+    .ctable { width: 100%; min-width: 560px; border-collapse: collapse; font-size: 0.875rem; }
+    .ctable th {
+      padding: 0.875rem 1.25rem;
+      background: var(--s1); border-bottom: 1px solid var(--border);
+      font-family: 'Outfit', sans-serif; font-weight: 500;
+      font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase;
+      text-align: center;
+    }
+    .ctable th:first-child { text-align: left; }
+    .ctable th.hl { background: var(--s2); color: var(--gold-lt); border-top: 2px solid var(--gold); }
+    .ctable td {
+      padding: 0.8rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      text-align: center; color: var(--muted);
+    }
+    .ctable td:first-child { text-align: left; color: var(--white); }
+    .ctable td.hl { background: rgba(200,169,110,0.04); color: var(--white); }
+    .ctable tr:last-child td { border-bottom: none; }
+    .g { color: #6FCF97; }
+    .r { color: #EB5757; }
+    .a { color: var(--gold); }
+
+    /* ── Who cards ── */
+    .who-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    @media (max-width: 680px) { .who-grid { grid-template-columns: 1fr; } }
+    .w-card {
+      background: var(--s1); border: 1px solid var(--border);
+      padding: 2.75rem 2.5rem; position: relative; overflow: hidden;
+      transition: border-color 0.3s;
+    }
+    .w-card:hover { border-color: var(--gold-dk); }
+    .w-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0;
+      height: 2px; background: var(--gold);
+    }
+    .w-card .wlabel { font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); font-weight: 500; margin-bottom: 1.25rem; }
+    .w-card h3 { font-size: 2rem; margin-bottom: 0.875rem; }
+    .w-card p { color: #888890; font-size: 0.88rem; margin-bottom: 1.5rem; line-height: 1.7; }
+    .tags { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .tag {
+      padding: 0.28rem 0.7rem; border: 1px solid var(--border);
+      font-size: 0.75rem; color: var(--muted); font-family: 'Outfit', sans-serif;
+    }
+
+    /* ── Steps ── */
+    .steps {
+      display: grid; grid-template-columns: repeat(4,1fr);
+      border: 1px solid var(--border);
+    }
+    @media (max-width: 760px) { .steps { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 460px) { .steps { grid-template-columns: 1fr; } }
+    .step { padding: 2.5rem 1.75rem; border-right: 1px solid var(--border); }
+    .step:last-child { border-right: none; }
+    @media (max-width: 760px) {
+      .step:nth-child(2) { border-right: none; }
+      .step { border-bottom: 1px solid var(--border); }
+      .step:nth-last-child(-n+2) { border-bottom: none; }
+    }
+    @media (max-width: 460px) {
+      .step { border-right: none; }
+      .step:last-child { border-bottom: none; }
+    }
+    .step-n {
+      font-family: 'Cormorant Garant', serif;
+      font-size: 3.5rem; font-weight: 300; line-height: 1;
+      color: var(--border); margin-bottom: 1.25rem;
+      transition: color 0.3s;
+    }
+    .step:hover .step-n { color: var(--gold-dk); }
+    .step h3 { font-size: 1.15rem; margin-bottom: 0.6rem; }
+    .step p  { font-size: 0.85rem; color: #888890; line-height: 1.65; }
+
+    /* ── Tabs ── */
+    .tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 2rem; }
+    .tab-btn {
+      padding: 0.8rem 1.75rem;
+      background: none; border: none; border-bottom: 2px solid transparent;
+      color: var(--muted); font-family: 'Outfit', sans-serif;
+      font-size: 0.85rem; font-weight: 500; letter-spacing: 0.04em;
+      cursor: pointer; margin-bottom: -1px;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .tab-btn.on  { color: var(--gold-lt); border-bottom-color: var(--gold); }
+    .tab-btn:hover:not(.on) { color: var(--white); }
+    .tab-btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+    .tab-panel { display: none; }
+    .tab-panel.on { display: block; }
+
+    .doc-list {
+      list-style: none;
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); gap: 0.6rem;
+    }
+    @media (max-width: 480px) { .doc-list { grid-template-columns: 1fr; } }
+    .doc-list li {
+      display: flex; align-items: flex-start; gap: 0.7rem;
+      padding: 0.875rem 1.1rem;
+      background: var(--s1); border: 1px solid var(--border);
+      font-size: 0.85rem; color: var(--white);
+    }
+    .doc-list li svg { flex-shrink: 0; margin-top: 2px; color: var(--gold); }
+
+    /* ── Products ── */
+    .prod-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    @media (max-width: 680px) { .prod-grid { grid-template-columns: 1fr; } }
+    .p-card { background: var(--s1); border: 1px solid var(--border); padding: 2.75rem; }
+    .p-code { font-family: 'Cormorant Garant', serif; font-size: 1.8rem; color: var(--gold); margin-bottom: 0.4rem; }
+    .p-card h3 { font-size: 1.35rem; margin-bottom: 0.875rem; }
+    .p-card p  { font-size: 0.875rem; color: #888890; line-height: 1.7; }
+    .feat-list { list-style: none; display: flex; flex-direction: column; gap: 0.4rem; }
+    .feat-list li { font-size: 0.85rem; color: var(--muted); display: flex; gap: 0.5rem; }
+    .feat-list li::before { content: '→'; color: var(--gold); flex-shrink: 0; }
+
+    /* ── CTA final ── */
+    #cta { background: var(--s1); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); text-align: center; }
+
+    /* ── Footer ── */
+    footer { padding: 3rem 1.5rem; border-top: 1px solid var(--border); }
+
+    /* ── WhatsApp FAB ── */
+    #fab {
+      position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 200;
+      width: 56px; height: 56px;
+      background: #25D366; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      text-decoration: none;
+      box-shadow: 0 4px 20px rgba(37,211,102,0.4);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    #fab:hover  { transform: scale(1.1) translateY(-2px); box-shadow: 0 8px 32px rgba(37,211,102,0.5); }
+    #fab:active { transform: scale(0.95); }
+    #fab:focus-visible { outline: 2px solid #25D366; outline-offset: 3px; }
+    @media (min-width: 1024px) { #fab { display: none; } }
+  </style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav id="nav">
+  <a href="#" class="nav-brand">Arrendamiento<span>.</span></a>
+  <a href="https://wa.me/525539669841" target="_blank" rel="noopener" class="btn-gold" style="display:none; font-size:0.78rem; padding:0.55rem 1.25rem;" id="nav-cta">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    Habla con tu asesor
+  </a>
+</nav>
+
+<!-- Hero -->
+<section id="hero">
+  <div class="hero-glow"></div>
+  <p class="label load l1">Arrendamiento vehicular · México</p>
+  <h1 class="hero-hl load l2" style="margin-top:1.75rem;">
+    Tu empresa<br><em>merece más</em><br>que un crédito
+  </h1>
+  <div class="hero-rule load l3"></div>
+  <p class="load l4" style="color:#9A9AA4; max-width:500px; font-size:clamp(1rem,2vw,1.2rem); line-height:1.8;">
+    Accede a los vehículos que tu negocio necesita con pagos fijos, sin enganche y con ventajas fiscales reales desde el primer mes.
+  </p>
+  <div class="load l5" style="display:flex; gap:1rem; margin-top:2.75rem; flex-wrap:wrap; justify-content:center;">
+    <a href="https://wa.me/525539669841" target="_blank" rel="noopener" class="btn-gold">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      Habla con tu asesor
+    </a>
+    <a href="#como-funciona" class="btn-outline">
+      Ver cómo funciona
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+    </a>
+  </div>
+</section>
+
+<!-- Por qué arrendar -->
+<section id="ventajas">
+  <div class="wrap">
+    <div class="sh">
+      <div class="sh-row reveal"><span class="label">Ventajas</span></div>
+      <h2 class="reveal d1" style="font-size:clamp(2.2rem,5vw,4rem); max-width:560px;">
+        Por qué el arrendamiento<br><em>es la decisión inteligente</em>
+      </h2>
+    </div>
+    <div class="benefits">
+      <div class="b-card reveal">
+        <svg class="b-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 2"/></svg>
+        <h3>Sin enganche</h3>
+        <p>Preserva tu capital de trabajo. No se requiere desembolso inicial — tu flujo de caja permanece intacto desde el primer día.</p>
+      </div>
+      <div class="b-card reveal d1">
+        <svg class="b-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="5" width="18" height="14" rx="1"/><path d="M3 10h18"/></svg>
+        <h3>Deducción fiscal</h3>
+        <p>Las rentas son 100% deducibles para PFAE y Personas Morales. Una ventaja que el crédito tradicional simplemente no ofrece.</p>
+      </div>
+      <div class="b-card reveal d2">
+        <svg class="b-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        <h3>Pagos fijos</h3>
+        <p>Renta mensual predecible durante toda la vigencia del contrato. Planea tu presupuesto sin sorpresas ni variaciones de tasa.</p>
+      </div>
+      <div class="b-card reveal d3">
+        <svg class="b-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <h3>Sin depreciación</h3>
+        <p>El vehículo no aparece en tu activo fijo. Evitas depreciación contable y el riesgo de quedar con un activo obsoleto.</p>
+      </div>
+    </div>
+
+    <!-- Comparison -->
+    <div class="reveal" style="margin-top:3.5rem; overflow-x:auto; -webkit-overflow-scrolling:touch;">
+      <p class="label" style="margin-bottom:1.5rem;">Comparativo</p>
+      <table class="ctable">
+        <thead>
+          <tr>
+            <th style="text-align:left; width:36%;">Criterio</th>
+            <th class="hl">Arrendamiento</th>
+            <th>Compra directa</th>
+            <th>Crédito auto</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Enganche requerido</td>
+            <td class="hl g">✓ No requiere</td>
+            <td class="r">100% del valor</td>
+            <td class="a">20–30%</td>
+          </tr>
+          <tr>
+            <td>Deducción de pagos</td>
+            <td class="hl g">✓ 100% deducible</td>
+            <td class="r">Solo depreciación</td>
+            <td class="a">Solo intereses</td>
+          </tr>
+          <tr>
+            <td>Riesgo de depreciación</td>
+            <td class="hl g">✓ Sin riesgo</td>
+            <td class="r">Total</td>
+            <td class="r">Total</td>
+          </tr>
+          <tr>
+            <td>Predictibilidad de pagos</td>
+            <td class="hl g">✓ Fija y garantizada</td>
+            <td class="g">N/A</td>
+            <td class="a">Variable en algunas</td>
+          </tr>
+          <tr>
+            <td>Renovación de flotilla</td>
+            <td class="hl g">✓ Sencilla al vencer</td>
+            <td class="r">Proceso complejo</td>
+            <td class="r">Proceso complejo</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- Para quién -->
+<section id="para-quien" style="background:var(--s1); border-top:1px solid var(--border); border-bottom:1px solid var(--border);">
+  <div class="wrap">
+    <div class="sh">
+      <div class="sh-row reveal"><span class="label">¿Para quién?</span></div>
+      <h2 class="reveal d1" style="font-size:clamp(2.2rem,5vw,4rem);">
+        Soluciones para cada<br><em>tipo de cliente</em>
+      </h2>
+    </div>
+    <div class="who-grid">
+      <div class="w-card reveal">
+        <p class="wlabel">Persona Física · PFAE</p>
+        <h3>Persona Física con Actividad Empresarial</h3>
+        <p>Profesionistas independientes, emprendedores y dueños de negocios que tributan como PFAE. Accede a todos los beneficios del arrendamiento con un proceso ágil y personalizado.</p>
+        <div class="tags">
+          <span class="tag">Médicos y clínicas</span>
+          <span class="tag">Abogados</span>
+          <span class="tag">Consultores</span>
+          <span class="tag">Comerciantes</span>
+          <span class="tag">Arquitectos</span>
+          <span class="tag">Contadores</span>
+        </div>
+      </div>
+      <div class="w-card reveal d2">
+        <p class="wlabel">Persona Moral · PM</p>
+        <h3>Persona Moral</h3>
+        <p>Empresas, sociedades y cualquier entidad jurídica. Optimiza tu flotilla vehicular, maximiza deducciones fiscales y mantén la liquidez de tu empresa con pagos fijos.</p>
+        <div class="tags">
+          <span class="tag">Empresas de logística</span>
+          <span class="tag">Constructoras</span>
+          <span class="tag">Distribuidoras</span>
+          <span class="tag">Grupos hospitalarios</span>
+          <span class="tag">Servicios profesionales</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Cómo funciona -->
+<section id="como-funciona">
+  <div class="wrap">
+    <div class="sh">
+      <div class="sh-row reveal"><span class="label">El proceso</span></div>
+      <h2 class="reveal d1" style="font-size:clamp(2.2rem,5vw,4rem);">
+        Cuatro pasos para<br><em>tener tus vehículos</em>
+      </h2>
+    </div>
+    <div class="steps">
+      <div class="step reveal">
+        <div class="step-n">01</div>
+        <h3>Contacta a tu asesor</h3>
+        <p>Cuéntanos sobre tu negocio y los vehículos que necesitas. Sin compromiso ni papeleo inicial.</p>
+      </div>
+      <div class="step reveal d1">
+        <div class="step-n">02</div>
+        <h3>Envía tu documentación</h3>
+        <p>Te indicamos exactamente qué necesitas según tu perfil. Sin sorpresas en el camino.</p>
+      </div>
+      <div class="step reveal d2">
+        <div class="step-n">03</div>
+        <h3>Cotización y aprobación</h3>
+        <p>Recibes una cotización personalizada. Aprobado el expediente, formalizamos el contrato.</p>
+      </div>
+      <div class="step reveal d3">
+        <div class="step-n">04</div>
+        <h3>Recibe tu vehículo</h3>
+        <p>Entrega en tiempo y forma. Desde el primer mes tus deducciones fiscales están activas.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Documentación -->
+<section id="documentacion" style="background:var(--s1); border-top:1px solid var(--border); border-bottom:1px solid var(--border);">
+  <div class="wrap">
+    <div class="sh">
+      <div class="sh-row reveal"><span class="label">Requisitos</span></div>
+      <h2 class="reveal d1" style="font-size:clamp(2.2rem,5vw,4rem);">
+        ¿Qué necesitas<br><em>para comenzar?</em>
+      </h2>
+      <p class="reveal d2" style="color:var(--muted); margin-top:1rem; max-width:480px; font-size:0.9rem;">
+        Los requisitos varían según tu tipo de persona. Selecciona tu categoría.
+      </p>
+    </div>
+    <div class="reveal">
+      <div class="tabs">
+        <button class="tab-btn on" onclick="switchTab('pfae',this)">Persona Física · PFAE</button>
+        <button class="tab-btn"    onclick="switchTab('pm',this)">Persona Moral · PM</button>
+      </div>
+      <div id="t-pfae" class="tab-panel on">
+        <ul class="doc-list">
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Autorización de consulta al buró de crédito (PF)</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Últimos 3 estados de cuenta bancarios (PDF completos)</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Constancia de situación fiscal (RFC) — vigente</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Opinión de cumplimiento positiva (máx. 3 meses)</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Comprobante de domicilio fiscal (CFE, agua o teléfono — máx. 3 meses)</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Comprobante de domicilio operativo (si difiere del fiscal)</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Identificación oficial vigente (INE, pasaporte o FM2)</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Recibo predial del año en curso</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Acta de matrimonio (si aplica)</li>
+        </ul>
+      </div>
+      <div id="t-pm" class="tab-panel">
+        <ul class="doc-list">
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Autorización de consulta al buró de crédito (PM)</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Últimos 3 estados de cuenta bancarios (PDF completos)</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Constancia de situación fiscal de la empresa (RFC)</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Opinión de cumplimiento + balanza de comprobación (máx. 3 meses)</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Estados financieros parciales firmados por RL y CP</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Acta constitutiva de la empresa</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Poderes notariales vigentes del representante legal</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Estructura accionaria actualizada</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Identificación oficial del representante legal</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Comprobante de domicilio fiscal y operativo (máx. 3 meses)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="reveal" style="margin-top:2rem; display:flex; gap:0.875rem; padding:1.1rem 1.25rem; border:1px solid var(--border); align-items:flex-start;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" style="flex-shrink:0; margin-top:2px;"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+      <p style="font-size:0.83rem; color:var(--muted); line-height:1.7;">Tu asesor te guiará paso a paso en la recopilación de documentos. Esta lista es orientativa — los requisitos pueden variar según el producto y monto solicitado.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Productos PROCAAR -->
+<section id="productos">
+  <div class="wrap">
+    <div class="sh">
+      <div class="sh-row reveal"><span class="label">Productos</span></div>
+      <h2 class="reveal d1" style="font-size:clamp(2.2rem,5vw,4rem);">
+        Líneas de<br><em>arrendamiento</em>
+      </h2>
+    </div>
+    <div class="prod-grid">
+      <div class="p-card reveal">
+        <p class="p-code">PROCAAR PFAE</p>
+        <h3>Arrendamiento para Personas Físicas</h3>
+        <p style="margin-top:0.875rem;">Diseñado para personas físicas con actividad empresarial. Proceso simplificado, aprobación ágil y condiciones competitivas adaptadas al perfil del emprendedor.</p>
+        <div style="margin-top:2rem; padding-top:1.5rem; border-top:1px solid var(--border);">
+          <p class="label" style="margin-bottom:0.875rem;">Características</p>
+          <ul class="feat-list">
+            <li>Sin enganche requerido</li>
+            <li>Renta 100% deducible de impuestos</li>
+            <li>Plazos flexibles adaptados a tu negocio</li>
+            <li>Uso exclusivo del arrendatario</li>
+          </ul>
+        </div>
+      </div>
+      <div class="p-card reveal d2">
+        <p class="p-code">PROCAAR PM</p>
+        <h3>Arrendamiento para Personas Morales</h3>
+        <p style="margin-top:0.875rem;">Para empresas que buscan optimizar su flotilla vehicular. Condiciones preferenciales para volúmenes mayores y gestión centralizada de contratos.</p>
+        <div style="margin-top:2rem; padding-top:1.5rem; border-top:1px solid var(--border);">
+          <p class="label" style="margin-bottom:0.875rem;">Características</p>
+          <ul class="feat-list">
+            <li>Flotilla desde 1 unidad</li>
+            <li>Condiciones especiales por volumen</li>
+            <li>Gestión centralizada de contratos</li>
+            <li>Deducción directa para la empresa</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Final -->
+<section id="cta">
+  <div class="wrap" style="max-width:680px; padding-top:0; padding-bottom:0;">
+    <div class="sh-row reveal" style="justify-content:center; margin-bottom:1.5rem;">
+      <span class="label">¿Listo para comenzar?</span>
+    </div>
+    <h2 class="reveal d1" style="font-size:clamp(2.8rem,7vw,5.5rem); text-align:center;">
+      Habla con tu<br><em>asesor hoy</em>
+    </h2>
+    <p class="reveal d2" style="color:var(--muted); margin-top:1.5rem; font-size:1rem; line-height:1.75; text-align:center;">
+      Sin formularios. Sin espera. Una conversación directa para entender tu caso y darte una cotización real en menos de 24 horas.
+    </p>
+    <div class="reveal d3" style="margin-top:3rem; display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; padding-bottom:0.5rem;">
+      <a href="https://wa.me/525539669841" target="_blank" rel="noopener" class="btn-gold" style="font-size:0.95rem; padding:0.95rem 2.25rem;">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Abrir WhatsApp
+      </a>
+      <a href="tel:+525539669841" class="btn-outline" style="font-size:0.95rem; padding:0.95rem 2.25rem;">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 12a19.79 19.79 0 01-3.07-8.67A2 2 0 012 1.18h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 8.53a16 16 0 006.56 6.56l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+        Llamar directamente
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="wrap" style="display:flex; flex-direction:column; gap:1.25rem;">
+    <a href="#" class="nav-brand">Arrendamiento<span>.</span></a>
+    <p style="font-size:0.8rem; color:var(--muted); max-width:500px; line-height:1.75;">
+      Servicio de asesoría y gestión de arrendamiento vehicular en México. Operamos con productos de Bepensa Leasing, AB&C Leasing de México, S.A.P.I. de C.V. y Financiera Bepensa, S.A. de C.V., SOFOM E.R.
+    </p>
+    <div style="border-top:1px solid var(--border); padding-top:1.25rem; display:flex; flex-wrap:wrap; gap:1rem; justify-content:space-between; align-items:center;">
+      <p style="font-size:0.75rem; color:var(--muted2);">© 2025 · Arrendamiento vehicular · México</p>
+      <p style="font-size:0.75rem; color:var(--muted2);">+52 55 3966 9841</p>
+    </div>
+  </div>
+</footer>
+
+<!-- WhatsApp FAB -->
+<a href="https://wa.me/525539669841" id="fab" target="_blank" rel="noopener" aria-label="Contactar por WhatsApp">
+  <svg width="27" height="27" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+</a>
+
+<script>
+  // Nav scroll
+  const nav = document.getElementById('nav');
+  const navCta = document.getElementById('nav-cta');
+  window.addEventListener('scroll', () => {
+    const s = window.scrollY > 60;
+    nav.classList.toggle('scrolled', s);
+    navCta.style.display = s ? 'inline-flex' : 'none';
+  }, { passive: true });
+
+  // Scroll reveal
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  // Tabs
+  function switchTab(id, btn) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('on'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('on'));
+    document.getElementById('t-' + id).classList.add('on');
+    btn.classList.add('on');
+  }
+</script>
+</body>
+</html>
