@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+  <title>Omar Rosas — Asesor de Arrendamiento</title>
+  <meta name="description" content="Contacto directo con Omar Rosas, asesor especializado en arrendamiento de vehículos premium en México.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garant:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #080809;
+      --s1:      #0E0E10;
+      --s2:      #141416;
+      --border:  #1F1F23;
+      --gold:    #C8A96E;
+      --gold-lt: #E8D5A3;
+      --gold-dk: #7A6030;
+      --white:   #F2F0EB;
+      --muted:   #7E7E86;
+      --muted2:  #42424A;
+    }
+
+    html {
+      background: var(--bg);
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 300;
+      color: var(--white);
+      background: var(--bg);
+      min-height: 100svh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Grain overlay — identical to index.html */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 250px;
+      opacity: 0.025;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    /* ── Wrapper (card on desktop) ── */
+    .wrapper {
+      width: 100%;
+      max-width: 420px;
+      margin: 0 auto;
+    }
+
+    /* ── Photo zone ── */
+    .photo-zone {
+      position: relative;
+      width: 100%;
+      height: 62vh;
+      min-height: 360px;
+      overflow: hidden;
+    }
+
+    .photo-zone img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+      display: block;
+    }
+
+    /* Bottom gradient: photo fades into bg */
+    .photo-zone::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 60%;
+      background: linear-gradient(to bottom, transparent 0%, var(--bg) 85%);
+      pointer-events: none;
+    }
+
+    /* Name overlaid on the gradient area */
+    .name-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 0 1.5rem 1.4rem;
+      z-index: 2;
+    }
+
+    .name-overlay h1 {
+      font-family: 'Cormorant Garant', serif;
+      font-weight: 400;
+      font-size: clamp(3.6rem, 16vw, 5.6rem);
+      line-height: 0.9;
+      letter-spacing: -0.02em;
+      color: var(--white);
+    }
+
+    .name-overlay h1 em {
+      font-style: italic;
+      color: var(--gold);
+      display: block;
+    }
+
+    /* ── Card zone ── */
+    .card-zone {
+      padding: 0 1.5rem 2.5rem;
+    }
+
+    /* Title row with flanking gold lines */
+    .title-row {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      padding: 0.4rem 0 1.8rem;
+    }
+
+    .gold-line {
+      flex: 1;
+      height: 1px;
+      background: var(--gold);
+      opacity: 0.5;
+    }
+
+    .title-text {
+      font-size: 0.62rem;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    /* Primary CTA — WhatsApp */
+    .btn-whatsapp {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.65rem;
+      width: 100%;
+      padding: 1rem 1.5rem;
+      background: var(--gold);
+      color: var(--bg);
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      text-decoration: none;
+      cursor: pointer;
+      margin-bottom: 0.65rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-whatsapp:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 36px rgba(200,169,110,0.3);
+    }
+
+    .btn-whatsapp:active { transform: translateY(0); box-shadow: none; }
+    .btn-whatsapp:focus-visible { outline: 2px solid var(--gold-lt); outline-offset: 2px; }
+
+    .btn-whatsapp svg {
+      width: 16px;
+      height: 16px;
+      fill: var(--bg);
+      flex-shrink: 0;
+    }
+
+    /* Secondary CTA — Save contact */
+    .btn-save {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      width: 100%;
+      padding: 0.85rem 1.5rem;
+      background: transparent;
+      color: var(--white);
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      text-decoration: none;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      margin-bottom: 2rem;
+      transition: transform 0.2s, border-color 0.2s, color 0.2s;
+    }
+
+    .btn-save:hover {
+      border-color: var(--gold);
+      color: var(--gold-lt);
+      transform: translateY(-1px);
+    }
+
+    .btn-save:active { transform: translateY(0); }
+    .btn-save:focus-visible { outline: 1px solid var(--gold); outline-offset: 2px; }
+
+    .btn-save svg {
+      width: 14px;
+      height: 14px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.5;
+      flex-shrink: 0;
+    }
+
+    /* Contact rows */
+    .contact-rows {
+      border-top: 1px solid var(--border);
+    }
+
+    .contact-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.9rem 0;
+      border-bottom: 1px solid var(--border);
+      text-decoration: none;
+      color: var(--white);
+      transition: color 0.2s;
+    }
+
+    .contact-row:hover { color: var(--gold-lt); }
+    .contact-row:focus-visible { outline: 1px solid var(--gold); outline-offset: 2px; }
+
+    .contact-icon {
+      width: 34px;
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .contact-icon svg {
+      width: 13px;
+      height: 13px;
+      stroke: var(--gold);
+      fill: none;
+      stroke-width: 1.5;
+    }
+
+    .contact-label {
+      display: block;
+      font-size: 0.58rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted2);
+      margin-bottom: 0.12rem;
+    }
+
+    .contact-value {
+      font-size: 0.88rem;
+      font-weight: 400;
+      color: inherit;
+    }
+
+    /* Footer */
+    .footer {
+      padding: 1.8rem 1.5rem 2.5rem;
+      text-align: center;
+    }
+
+    .footer a {
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted2);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer a:hover { color: var(--gold); }
+
+    /* ── Load animations ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0);    }
+    }
+
+    .photo-zone    { animation: fadeUp 1s   cubic-bezier(0.16,1,0.3,1) 0s    both; }
+    .name-overlay  { animation: fadeUp 0.9s cubic-bezier(0.16,1,0.3,1) 0.12s both; }
+    .title-row     { animation: fadeUp 0.9s cubic-bezier(0.16,1,0.3,1) 0.24s both; }
+    .btn-whatsapp  { animation: fadeUp 0.9s cubic-bezier(0.16,1,0.3,1) 0.34s both; }
+    .btn-save      { animation: fadeUp 0.9s cubic-bezier(0.16,1,0.3,1) 0.42s both; }
+    .contact-rows  { animation: fadeUp 0.9s cubic-bezier(0.16,1,0.3,1) 0.5s  both; }
+    .footer        { animation: fadeUp 0.9s cubic-bezier(0.16,1,0.3,1) 0.58s both; }
+
+    /* ── Desktop: float as a card ── */
+    @media (min-width: 640px) {
+      body {
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        padding: 3rem 1.5rem;
+        min-height: 100svh;
+      }
+
+      .wrapper {
+        border: 1px solid rgba(200,169,110,0.18);
+        background: var(--s1);
+        overflow: hidden;
+        box-shadow:
+          0 0 0 1px rgba(0,0,0,0.6),
+          0 24px 80px rgba(0,0,0,0.7),
+          0 4px 20px rgba(200,169,110,0.08);
+      }
+
+      .photo-zone {
+        height: 480px;
+        min-height: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wrapper">
+
+    <div class="photo-zone">
+      <img src="assets/omar_suite.jpg" alt="Omar Rosas — Asesor de Arrendamiento">
+      <div class="name-overlay">
+        <h1>Omar<em>Rosas</em></h1>
+      </div>
+    </div>
+
+    <div class="card-zone">
+
+      <div class="title-row">
+        <div class="gold-line"></div>
+        <span class="title-text">Asesor de Arrendamiento</span>
+        <div class="gold-line"></div>
+      </div>
+
+      <a
+        href="https://wa.me/5215539669841"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="btn-whatsapp"
+      >
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+        </svg>
+        Enviar mensaje
+      </a>
+
+      <a
+        href="data:text/vcard;charset=utf-8,BEGIN%3AVCARD%0AVERSION%3A3.0%0AN%3ARosas%3BOmar%3B%3B%3B%0AFN%3AOmar%20Rosas%0ATITLE%3AAsesor%20de%20Arrendamiento%0ATEL%3BTYPE%3DCELL%2CVOICE%3A%2B5215539669841%0AEMAIL%3Aomrosasc%40bepensa.com%0AEND%3AVCARD"
+        download="Omar-Rosas.vcf"
+        class="btn-save"
+      >
+        <svg viewBox="0 0 24 24">
+          <path d="M17 21H7a2 2 0 01-2-2V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z"/>
+          <polyline points="17 21 17 13 7 13 7 21"/>
+          <polyline points="7 3 7 8 15 8"/>
+        </svg>
+        Guardar contacto
+      </a>
+
+      <div class="contact-rows">
+        <a href="tel:+5215539669841" class="contact-row">
+          <div class="contact-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.73A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.9z"/>
+            </svg>
+          </div>
+          <div>
+            <span class="contact-label">Teléfono</span>
+            <span class="contact-value">+52 1 55 3966 9841</span>
+          </div>
+        </a>
+
+        <a href="mailto:omrosasc@bepensa.com" class="contact-row">
+          <div class="contact-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+              <polyline points="22,6 12,13 2,6"/>
+            </svg>
+          </div>
+          <div>
+            <span class="contact-label">Correo</span>
+            <span class="contact-value">omrosasc@bepensa.com</span>
+          </div>
+        </a>
+      </div>
+
+    </div>
+
+    <footer class="footer">
+      <a href="index.html">Ver servicios de arrendamiento &rarr;</a>
+    </footer>
+
+  </div>
+
+</body>
+</html>
